@@ -51,8 +51,17 @@
             <scope>runtime</scope>
         </dependency>
 
-
-
+        <!-- Spring Data Redis (with Security Excluded) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-security</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>
