@@ -16,8 +16,9 @@ public class DataInitializer implements CommandLineRunner {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM users", Integer.class);
 
         if (count != null && count == 0) {
+            // Notice the ::uuid cast at the end of the VALUES clause
             jdbcTemplate.update(
-                    "INSERT INTO users (id, email, name) VALUES (?, ?, ?)",
+                    "INSERT INTO users (id, email, name) VALUES (?::uuid, ?, ?)",
                     "11111111-1111-1111-1111-111111111111",
                     "test@example.com",
                     "Test User"
