@@ -4,12 +4,14 @@ import com.vyshnavi.keytrace.model.User;
 import com.vyshnavi.keytrace.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Profile("!prod") // This tells Spring to ONLY run this locally, not on Render
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;

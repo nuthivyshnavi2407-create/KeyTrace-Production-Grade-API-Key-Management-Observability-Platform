@@ -18,6 +18,7 @@ public class WebConfig {
 
     private final ApiKeyFilter apiKeyFilter;
 
+    // Register the API Key Filter for the /api/v1/* paths
     @Bean
     public FilterRegistrationBean<ApiKeyFilter> apiKeyFilterRegistration() {
         FilterRegistrationBean<ApiKeyFilter> registration = new FilterRegistrationBean<>();
@@ -27,10 +28,17 @@ public class WebConfig {
         return registration;
     }
 
+    // CORS Filter to allow React (Vercel) to talk to Spring Boot (Render)
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+
+        // Allow localhost AND your live Vercel frontend URL
+        config.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "https://key-trace-production-grade-api-key-management-observ-5jsm46w9d.vercel.app"
+        ));
+
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
@@ -40,7 +48,7 @@ public class WebConfig {
         source.registerCorsConfiguration("/**", config);
 
         FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); // Runs first
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE); // Runs first, before everything else
         return bean;
     }
 }
