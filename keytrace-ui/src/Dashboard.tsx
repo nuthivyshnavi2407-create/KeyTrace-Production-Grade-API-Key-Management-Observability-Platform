@@ -15,10 +15,13 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
 
+    // Use the environment variable, fallback to localhost for local dev
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+
     const createKey = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:8081/api/keys', {
+            const response = await axios.post(`${API_BASE_URL}/api/keys`, {
                 userId: '11111111-1111-1111-1111-111111111111',
                 name: name || 'New Key',
                 scopes: ['read', 'write'],
@@ -77,7 +80,6 @@ export default function Dashboard() {
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="bg-green-900 text-green-300 text-xs px-2 py-1 rounded text-center">Active</span>
-                                    {/* THE BUTTON IS HERE */}
                                     <button
                                         onClick={() => setSelectedKeyId(key.id)}
                                         className="bg-purple-600 hover:bg-purple-700 text-xs px-3 py-1 rounded font-semibold"

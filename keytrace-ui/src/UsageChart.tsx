@@ -17,6 +17,9 @@ export default function UsageChart({ keyId }: UsageChartProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // Use the environment variable, fallback to localhost for local dev
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081';
+
     useEffect(() => {
         if (!keyId) return;
 
@@ -24,7 +27,7 @@ export default function UsageChart({ keyId }: UsageChartProps) {
             setLoading(true);
             setError('');
             try {
-                const response = await axios.get(`http://localhost:8081/api/keys/${keyId}/usage`);
+                const response = await axios.get(`${API_BASE_URL}/api/keys/${keyId}/usage`);
                 setData(response.data);
             } catch (err) {
                 setError('Failed to fetch usage data.');
