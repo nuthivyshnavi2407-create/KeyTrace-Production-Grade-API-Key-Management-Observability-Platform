@@ -9,6 +9,7 @@ public class RedisConfig {
 
     @Bean
     public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
+        // This tells Spring Data Redis to use SSL (required for Upstash)
         return builder -> builder.useSsl().disablePeerVerification();
     }
 }
