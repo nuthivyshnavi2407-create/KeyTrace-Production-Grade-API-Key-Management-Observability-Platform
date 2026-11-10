@@ -33,10 +33,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // NO MANUAL CORS HEADERS HERE. WebConfig handles it.
-
         response.setContentType("application/json");
-
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -48,16 +45,14 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         String rawKey = authHeader.substring(7);
         String hashedKey = hashKey(rawKey);
 
-        // 1. Redis Revocation Check
+        // 1. Check Redis for Revocation (1-second revocation)
         if (redisService.isKeyRevoked(hashedKey)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\": \"API Key has been revoked\"}");
             return;
         }
 
-        // 2. Database Lookup
         Optional<ApiKey> apiKeyOpt = apiKeyRepository.findByKeyHash(hashedKey);
-
         if (apiKeyOpt.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\": \"Invalid API Key\"}");
@@ -69,6 +64,16 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         if (apiKey.getRevokedAt() != null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"error\": \"API Key has been revoked\"}");
+            return;
+        }
+
+        // 2. Redis Rate Limiting
+        Long currentCount = redisService.incrementRateLimit(apiKey.getId().toString());
+        int limit = apiKey.getRateLimitPerMinute();
+
+        if (currentCount != null && currentCount > limit) {
+            response.setStatus(429); // Too Many Requests
+            response.getWriter().write("{\"error\": \"Rate limit exceeded. Limit is " + limit + " per minute.\"}");
             return;
         }
 
